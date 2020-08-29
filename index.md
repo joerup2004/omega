@@ -5,7 +5,6 @@ Your everyday calculator with so many features:
 - Basic Calculator
 - Scientific Calculator
 - Store & Edit Calculations
-
 - Intuitive Interface
 - Solve Long Complicated Expressions
 - Display Settings & Calculation Preferences
