@@ -1,5 +1,5 @@
-# omega
-Omega Calculator - Your everyday calculator with so many features
+# Omega Calculator
+Your everyday calculator with so many features
 
 Basic Calculator 
 Scientific Calculator 
