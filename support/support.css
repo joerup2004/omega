@@ -62,7 +62,20 @@ body {
     color: #ccc;
 }
 
+.description h5 {
+    color: #ccc;
+}
+
+.description h3 {
+    color: #eee;
+}
+
 .description p {
+    color: #aaa;
+    font-size: 1.3rem;
+    line-height: 1.5;
+}
+.description li {
     color: #aaa;
     font-size: 1.3rem;
     line-height: 1.5;

@@ -56,9 +56,14 @@ body {
     top: 45%;
     transform: translate(-50%, 5%);
     text-align: center;
+    color: #aaa;
 }
 
 .description h1 {
+    color: #ccc;
+}
+
+.description h4 {
     color: #ccc;
 }
 
