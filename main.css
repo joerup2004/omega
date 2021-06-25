@@ -61,6 +61,9 @@ body {
 .description h1 {
     color: #ccc;
 }
+.description h3 {
+    color: #ccc;
+}
 
 .description p {
     color: #aaa;
