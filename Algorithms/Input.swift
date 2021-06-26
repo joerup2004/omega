@@ -315,6 +315,19 @@ class Input: ObservableObject {
                 }
             }
             
+            // Repeating decimal
+            else if button == " ̅" {
+                
+                // Queue the num
+                queueNum(addToZero: false, removeOp: false, endIndex: false, closePar: false)
+                
+                // Queue a repeater
+                hub.queue[hub.queue.count-1].append(" ̅")
+                
+                // End indexing
+                endIndexing()
+            }
+            
             if !hub.num.isEmpty {
                 
                 // Fix zeroes
@@ -1473,6 +1486,33 @@ class Input: ObservableObject {
         // Disable closed parentheses if every parenthesis has a partner
         if closePar >= openPar {
             hub.disabledButtons += [")"]
+        }
+        // Disable repeaters if there is no num or no decimal in it
+        hub.disabledButtons += [" ̅"]
+        var checkRepeaters = ""
+        if !hub.num.isEmpty && hub.num.contains(".") {
+            checkRepeaters = hub.num
+        }
+        else if !hub.queue.isEmpty && hub.queue[hub.queue.count-1].contains(".") {
+            checkRepeaters = hub.queue[hub.queue.count-1]
+        }
+        if checkRepeaters != "" {
+            var index = exp.stringCharIndex(string: checkRepeaters, character: ".", position: "first")
+            var places = 0
+            var repeaters = 0
+            while index < checkRepeaters.count {
+                let item = String(exp.stringCharGet(string: checkRepeaters, index: index))
+                if Int(item) != nil {
+                    places += 1
+                }
+                else if item == " ̅" {
+                    repeaters += 1
+                }
+                index += 1
+            }
+            if places > repeaters {
+                hub.disabledButtons.removeLast()
+            }
         }
         
         if !hub.queue.isEmpty {
@@ -3920,25 +3960,25 @@ class Input: ObservableObject {
         if calculation.id == calc.calculations.last!.id {
             
             // If error, explain why
-            if hub.error {
-                
-                // Show the error pop up
-                showErrorPopUp = true
-                
-                // Set bottomOutput to the extra message if there is one
-                hub.bottomOutput = exp.splitExpression(hub.extraMessage)
-                
-                // Wait
-                let seconds = 3.0
-                DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-                    
-                    // Stop showing the error pop up
-                    self.showErrorPopUp = false
-                    
-                    // Set bottomOutput to the extra message if there is one
-                    self.hub.bottomOutput = self.exp.splitExpression(self.hub.extraMessage)
-                }
-            }
+//            if hub.error {
+//
+//                // Show the error pop up
+//                showErrorPopUp = true
+//
+//                // Set bottomOutput to the extra message if there is one
+//                hub.bottomOutput = exp.splitExpression(hub.extraMessage)
+//
+//                // Wait
+//                let seconds = 3.0
+//                DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+//
+//                    // Stop showing the error pop up
+//                    self.showErrorPopUp = false
+//
+//                    // Set bottomOutput to the extra message if there is one
+//                    self.hub.bottomOutput = self.exp.splitExpression(self.hub.extraMessage)
+//                }
+//            }
             
             // If either result or results is empty, return
             guard !hub.result.isEmpty, !hub.results.isEmpty, hub.result != [" "], hub.results != [[" "]] else {

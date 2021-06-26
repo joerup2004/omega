@@ -67,7 +67,7 @@ struct HeaderButtonView: View {
                                                 .lineLimit(0)
                                         }
                                     }
-                                    .animation(self.settings.animateText ? .easeInOut : nil)
+                                    .animation(.easeInOut)
                                 }
                             }
                             .frame(width: self.width*0.15)
@@ -166,7 +166,7 @@ struct HeaderButtonView: View {
                                         .lineLimit(0)
                                 }
                             }
-                            .animation(self.settings.animateText ? .easeInOut : nil)
+                            .animation(.easeInOut)
                         }
                     }
                     .frame(width: self.width*0.25)

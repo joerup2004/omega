@@ -50,7 +50,7 @@ struct TextView: View {
 							self.input.prevInput(backspaceOnly: false)
 						}
 					}
-					.animation(self.settings.animateText ? .easeInOut : nil)
+					.animation(.easeInOut)
 
 					// MARK: Main Output
 					TextViews(
@@ -63,7 +63,7 @@ struct TextView: View {
 					.frame(height: self.height*0.35, alignment: .trailing)
 					.padding(.horizontal, self.width/17)
 					.padding(.vertical, self.height*0.01)
-					.animation(self.settings.animateText ? .easeInOut : nil)
+					.animation(.easeInOut)
 
 					// MARK: Bottom Output
 					TextViews(
@@ -84,7 +84,7 @@ struct TextView: View {
 						Text(self.hub.extraMessagePopUp)
 						.fixedSize()
 					}
-					.animation(self.settings.animateText ? .easeInOut : nil)
+					.animation(.easeInOut)
 				}
 				.padding(.bottom, self.height*0.05)
 			}
@@ -110,7 +110,7 @@ struct TextView: View {
 							position: "bottom"
 						)
 						.foregroundColor(Color.init(white: 0.7))
-						.frame(width: geometry.size.width*0.25, height: self.height*0.4, alignment: .leading)
+						.frame(height: self.height*0.4, alignment: .leading)
 						.padding(.trailing, self.width/17)
 						.padding(.leading, self.width*0.03)
 						.padding(.vertical, self.height*0.1)
@@ -121,7 +121,7 @@ struct TextView: View {
 							Text(self.hub.extraMessagePopUp)
 							.fixedSize()
 						}
-						.animation(self.settings.animateText ? .easeInOut : nil)
+						.animation(.easeInOut)
 					}
 					.frame(width: self.width*0.3, height: self.height, alignment: .leading)
 					
@@ -137,7 +137,7 @@ struct TextView: View {
 							position: "top"
 						)
 						.foregroundColor(Color.init(white: 0.7))
-						.frame(width: geometry.size.width*0.5, height: self.height*0.3, alignment: .trailing)
+						.frame(height: self.height*0.3, alignment: .trailing)
 						.padding(.leading, self.width/17)
 						.padding(.trailing, self.width*0.05)
 						.onTapGesture {
@@ -145,7 +145,7 @@ struct TextView: View {
 								self.input.prevInput(backspaceOnly: false)
 							}
 						}
-						.animation(self.settings.animateText ? .easeInOut : nil)
+						.animation(.easeInOut)
 
 						// MARK: Main Output
 						TextViews(
@@ -155,10 +155,10 @@ struct TextView: View {
 							position: "main"
 						)
 						.foregroundColor(Color.white)
-						.frame(width: geometry.size.width*0.5, height: self.height*0.6, alignment: .trailing)
+						.frame(height: self.height*0.6, alignment: .trailing)
 						.padding(.leading, self.width/17)
 						.padding(.trailing, self.width*0.05)
-						.animation(self.settings.animateText ? .easeInOut : nil)
+						.animation(.easeInOut)
 
 						Spacer()
 					}
@@ -177,12 +177,15 @@ struct TextView: View {
 // Concatenate all of the text in the array and change formatting of certain parts
 struct TextViews: View {
 
-	var array: Array<String>
+	var array: [String]
 	var formattingGuide: [[String]]
 	var size: CGFloat
 	var position: String
-
+	var scrollable: Bool = true
+	
+	@ObservedObject var hub = Hub.hub
 	@ObservedObject var formatting = Formatting.formatting
+	@ObservedObject var settings = Settings.settings
 	
 	var body: some View {
 		
@@ -192,21 +195,60 @@ struct TextViews: View {
 				.opacity(0)
 				.frame(width: 0.001, height: self.size)
 			
-			HStack(spacing:0) {
+//			if settings.scrollResults && scrollable {
+//
+//				ScrollViewReader { scrollView in
+//
+//					ReversedScrollView {
+//
+//						HStack(spacing:0) {
+//
+//							ForEach(self.formatting.a(array).indices, id: \.self) { index in
+//
+//								self.formatting.form(
+//
+//									text: self.formatting.a(self.array)[index],
+//									inputSize: self.size,
+//									position: self.position,
+//									index: index,
+//									array: self.formatting.a(self.array),
+//									formatting: formattingGuide
+//								)
+//								.id(index)
+//							}
+//							.onAppear {
+//								withAnimation {
+//									scrollView.scrollTo(self.formatting.a(array).count, anchor: .trailing)
+//								}
+//							}
+//							.onChange(of: self.array.last) { _ in
+//								withAnimation {
+//									scrollView.scrollTo(self.formatting.a(array).count, anchor: .trailing)
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//			else {
 				
-				ForEach(self.formatting.a(array).indices, id: \.self) { index in
-						
-					self.formatting.form(
-						
-						text: self.formatting.a(self.array)[index],
-						inputSize: self.size,
-						position: self.position,
-						index: index,
-						array: self.formatting.a(self.array),
-						formatting: formattingGuide
-					)
-				}
-			}
+				HStack(spacing:0) {
+					   
+				   ForEach(self.formatting.a(array).indices, id: \.self) { index in
+					   
+					   self.formatting.form(
+						   
+						   text: self.formatting.a(self.array)[index],
+						   inputSize: self.size,
+						   position: self.position,
+						   index: index,
+						   array: self.formatting.a(self.array),
+						   formatting: formattingGuide
+					   )
+					   .id(index)
+				   }
+			   }
+//			}
 		}
 		.frame(height: self.size)
 	}
@@ -214,28 +256,59 @@ struct TextViews: View {
 
 
 // Resize text if it does not fit
-func resize(array: Array<String>, formattingGuide: [[String]], size: CGFloat, width: CGFloat, position: String, landscape: Bool) -> CGFloat {
+func resize(array: Array<String>, formattingGuide: [[String]], size: CGFloat, width: CGFloat, position: String, landscape: Bool, originalSize: CGFloat? = nil) -> CGFloat {
 	
 	var totalWidth: CGFloat = 0
 	var newSize = size
 	
 	let formatting = Formatting.formatting
+	
+	// If the new size is a certain proportion of the original size, return
+//	if originalSize != nil && Settings.settings.scrollResults && size < originalSize!*0.5 {
+//		return newSize
+//	}
 
 	// Loop through the array and add the widths of each item to the total
 	var index = 0
 	while index < formatting.a(array).count {
 
-		let itemWidth = formatting.format(formatting.a(array)[index], inputSize: newSize, position: position, index: index, array: formatting.a(array), formatting: formattingGuide, makeView: false)
+		let itemWidth = formatting.format(formatting.a(array)[index], inputSize: newSize, position: position, index: index, array: formatting.a(array), formatting: formattingGuide, padded: true)
 
 		totalWidth += itemWidth
 
 		index += 1
 	}
 	
-	// If the width is almost greater than the screen width, shrink and repeat
-	if totalWidth > ( !landscape ? width*0.85 : position == "bottom" ? width*0.25 : width*0.65 ) {
-		newSize = resize(array: array, formattingGuide: formattingGuide, size: size-1, width: width, position: position, landscape: landscape)
+	// If the width is greater than the acceptable width, shrink and repeat
+	let acceptableWidth = position == "none" ? width : !landscape ? width*0.85 : position == "bottom" ? width*0.25 : Hub.hub.bottomOutput.count > 1 ? width*0.75 : width*0.94
+	if totalWidth > acceptableWidth {
+		newSize = resize(array: array, formattingGuide: formattingGuide, size: size-1, width: width, position: position, landscape: landscape, originalSize: originalSize ?? size)
 	}
 	
 	return newSize
+}
+
+
+// MARK: - Reversed Scroll View
+
+struct ReversedScrollView<Content: View>: View {
+	var axis: Axis.Set
+	var content: Content
+	
+	init(_ axis: Axis.Set = .horizontal, @ViewBuilder builder: ()->Content) {
+		self.axis = axis
+		self.content = builder()
+	}
+	
+	var body: some View {
+		GeometryReader { proxy in
+			ScrollView(axis) {
+				HStack {
+					Spacer()
+					content
+				}
+				.frame(minWidth: proxy.size.width)
+			}
+		}
+	}
 }

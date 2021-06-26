@@ -14,6 +14,8 @@ struct ButtonView: View {
     
     @ObservedObject var hub = Hub.hub
     @ObservedObject var settings = Settings.settings
+    @ObservedObject var formatting = Formatting.formatting
+    
     var input = Input.input
     var uiData = UIData.uiData
     
@@ -32,8 +34,10 @@ struct ButtonView: View {
             VStack(spacing: 0) {
                 
                 Text(self.buttonText(button))
-                    .font(.custom(self.settings.lightBut ? "HelveticaNeue" : "HelveticaNeue-Bold", size: fontSize))
+                    .font(.custom("HelveticaNeue", size: fontSize, relativeTo: .headline))
+                    .fontWeight(self.settings.buttonWeight == 0 ? .light : self.settings.buttonWeight == 2 ? .bold : .medium)
                     .foregroundColor(color([255,255,255]))
+                    .baselineOffset(self.raise(button) ? fontSize*0.15 : 0)
                     .minimumScaleFactor(0.1)
                     .lineLimit(0)
                     .frame(width: self.width*0.75)
@@ -87,14 +91,25 @@ struct ButtonView: View {
     
     func buttonText(_ button: String) -> String {
         
-        var text = button
-        
-        if text == "." && self.settings.commaDecimal {
-            text = ","
+        switch button {
+        case ".":
+            return self.settings.commaDecimal ? "," : "."
+        case "ˣ√":
+            return "ⁿ√"
+        case "logₓ":
+            return "logₙ"
+        case "x^":
+            return "n^"
+        default:
+            return button
         }
-        
-        return text
     }
     
+    func raise(_ button: String) -> Bool {
+        
+        let raisers = ["+","-","×","÷",".","="]
+        
+        return raisers.contains(button)
+    }
 }
 

@@ -34,7 +34,7 @@ class UIData {
             [")","e^","ln","cos⁻¹"],
             ["/","2^","log₂","tan⁻¹"],
             ["%","x^","logₓ","| |"],
-            ["EXP","π","e","rand"]
+            ["EXP","π"," ̅","rand"]
         ],
         [
             ["(","^2","√","round"],
@@ -138,11 +138,55 @@ class UIData {
             ]
         ),
         
-        ThemeCategory(id: 1, name: "The Land", themes: [
-            
+        ThemeCategory(id: 1, name: "Colorful", themes: [
+        
                 Theme(id: 4,
+                      name: "Warm",
+                      category: "Colorful",
+                      color1: [244,061,063], // Pinkish Red
+                      color2: [232,094,024], // Orange
+                      color3: [156,014,010], // Dark Red
+                      color4: [150,013,009], // Darker Red
+                      gray: 0.7
+                ),
+                
+                Theme(id: 5,
+                      name: "Cool",
+                      category: "Colorful",
+                      color1: [180,230,240], // Light Blue
+                      color2: [200,020,200], // Magenta
+                      color3: [000,180,200], // Light Blue
+                      color4: [000,175,190], // Light Blue
+                      gray: 0.85
+                ),
+                
+                Theme(id: 6,
+                      name: "Life",
+                      category: "Colorful",
+                      color1: [075,200,102], // Bright Green
+                      color2: [040,177,190], // Blue
+                      color3: [015,115,050], // Dark Green
+                      color4: [012,110,045], // Darker Green
+                      gray: 0.7
+                ),
+                
+                Theme(id: 7,
+                      name: "Pastel",
+                      category: "Colorful",
+                      color1: [200,225,176], // Light Green
+                      color2: [176,176,225], // Light Blue
+                      color3: [225,200,176], // Light Orange
+                      color4: [219,195,171], // Light Orange
+                      gray: 0.9
+                ),
+            ]
+        ),
+        
+        ThemeCategory(id: 2, name: "The Land", themes: [
+            
+                Theme(id: 8,
                       name: "Grassy",
-                      category: "Nature",
+                      category: "The Land",
                       color1: [065,233,087], // Lime Green
                       color2: [240,210,087], // Yellow
                       color3: [034,132,047], // Dark Green
@@ -150,7 +194,7 @@ class UIData {
                       gray: 0.7
                 ),
                 
-                Theme(id: 5,
+                Theme(id: 9,
                       name: "Mountain",
                       category: "The Land",
                       color1: [201,169,218], // Light Purple
@@ -160,7 +204,7 @@ class UIData {
                       gray: 0.7
                 ),
                 
-                Theme(id: 6,
+                Theme(id: 10,
                       name: "Desert",
                       category: "The Land",
                       color1: [210,176,147], // Tan
@@ -170,7 +214,7 @@ class UIData {
                       gray: 0.85
                 ),
                 
-                Theme(id: 7,
+                Theme(id: 11,
                       name: "Floral",
                       category: "The Land",
                       color1: [184,043,216], // Purple
@@ -182,9 +226,9 @@ class UIData {
             ]
         ),
         
-        ThemeCategory(id: 2, name: "The Sea", themes: [
+        ThemeCategory(id: 3, name: "The Sea", themes: [
                 
-                Theme(id: 8,
+                Theme(id: 12,
                       name: "Aquatic",
                       category: "The Sea",
                       color1: [115,215,235], // Light Blue
@@ -194,7 +238,7 @@ class UIData {
                       gray: 0.7
                 ),
                 
-                Theme(id: 9,
+                Theme(id: 13,
                       name: "Scuba",
                       category: "The Sea",
                       color1: [000,030,150], // Blue
@@ -204,7 +248,7 @@ class UIData {
                       gray: 0.7
                 ),
                 
-                Theme(id: 10,
+                Theme(id: 14,
                       name: "Sailboat",
                       category: "The Sea",
                       color1: [224,055,055], // Red
@@ -214,7 +258,7 @@ class UIData {
                       gray: 0.9
                 ),
                 
-                Theme(id: 11,
+                Theme(id: 15,
                       name: "Coral",
                       category: "The Sea",
                       color1: [053,138,159], // Blue-Gray
@@ -226,9 +270,9 @@ class UIData {
             ]
         ),
         
-        ThemeCategory(id: 3, name: "The Sky", themes: [
+        ThemeCategory(id: 4, name: "The Sky", themes: [
         
-                Theme(id: 12,
+                Theme(id: 16,
                       name: "Galaxy",
                       category: "The Sky",
                       color1: [150,010,200], // Purple
@@ -238,7 +282,7 @@ class UIData {
                       gray: 0.7
                 ),
                 
-                Theme(id: 13,
+                Theme(id: 17,
                       name: "Sunset",
                       category: "The Sky",
                       color1: [252,031,090], // Pinkish Red
@@ -248,7 +292,7 @@ class UIData {
                       gray: 0.85
                 ),
                 
-                Theme(id: 14,
+                Theme(id: 18,
                       name: "Moonlight",
                       category: "The Sky",
                       color1: [212,212,212], // White
@@ -258,7 +302,7 @@ class UIData {
                       gray: 0.7
                 ),
                 
-                Theme(id: 15,
+                Theme(id: 19,
                       name: "Alien",
                       category: "The Sky",
                       color1: [089,239,169], // Light Green
@@ -266,50 +310,6 @@ class UIData {
                       color3: [184,136,202], // Light Purple
                       color4: [178,130,195], // Light Purple
                       gray: 0.8
-                ),
-            ]
-        ),
-        
-        ThemeCategory(id: 4, name: "Festive", themes: [
-
-                Theme(id: 16,
-                      name: "Hearts",
-                      category: "Festive",
-                      color1: [214,020,191], // Pink
-                      color2: [148,023,169], // Purple
-                      color3: [201,014,092], // Red
-                      color4: [198,013,089], // Dark Red
-                      gray: 0.7
-                ),
-                
-                Theme(id: 17,
-                      name: "Patriotic",
-                      category: "Festive",
-                      color1: [210,210,210], // White
-                      color2: [200,000,000], // Red
-                      color3: [000,000,186], // Blue
-                      color4: [000,000,180], // Darker Blue
-                      gray: 0.7
-                ),
-                
-                Theme(id: 18,
-                      name: "Pumpkin",
-                      category: "Festive",
-                      color1: [249,133,044], // Orange
-                      color2: [145,057,025], // Chestnut
-                      color3: [225,060,000], // Scarlet
-                      color4: [219,055,000], // Dark Scarlet
-                      gray: 0.75
-                ),
-                
-                Theme(id: 19,
-                      name: "Holiday",
-                      category: "Festive",
-                      color1: [157,000,000], // Red
-                      color2: [210,210,210], // White
-                      color3: [005,142,005], // Dark Green
-                      color4: [004,138,004], // Darker Green
-                      gray: 0.75
                 ),
             ]
         ),
@@ -337,16 +337,6 @@ class UIData {
                 ),
                 
                 Theme(id: 22,
-                      name: "Robin",
-                      category: "Animals",
-                      color1: [060,208,225], // Light Blue
-                      color2: [234,061,002], // Scarlet
-                      color3: [004,135,087], // Teal
-                      color4: [004,130,084], // Darker Teal
-                      gray: 0.75
-                ),
-                
-                Theme(id: 23,
                       name: "Unicorn",
                       category: "Animals",
                       color1: [253,091,145], // Pink
@@ -354,6 +344,16 @@ class UIData {
                       color3: [195,188,205], // White
                       color4: [190,183,199], // Light Gray
                       gray: 0.9
+                ),
+                
+                Theme(id: 23,
+                      name: "Robin",
+                      category: "Animals",
+                      color1: [060,208,225], // Light Blue
+                      color2: [234,061,002], // Scarlet
+                      color3: [004,135,087], // Teal
+                      color4: [004,130,084], // Darker Teal
+                      gray: 0.75
                 ),
             ]
         ),
@@ -402,46 +402,46 @@ class UIData {
             ]
         ),
         
-        ThemeCategory(id: 7, name: "Colorful", themes: [
-        
+        ThemeCategory(id: 7, name: "Festive", themes: [
+
                 Theme(id: 28,
-                      name: "Warm",
-                      category: "Colorful",
-                      color1: [244,061,063], // Pinkish Red
-                      color2: [232,094,024], // Orange
-                      color3: [156,014,010], // Dark Red
-                      color4: [150,013,009], // Darker Red
+                      name: "Hearts",
+                      category: "Festive",
+                      color1: [214,020,191], // Pink
+                      color2: [148,023,169], // Purple
+                      color3: [201,014,092], // Red
+                      color4: [198,013,089], // Dark Red
                       gray: 0.7
                 ),
                 
                 Theme(id: 29,
-                      name: "Cool",
-                      category: "Water",
-                      color1: [180,230,240], // Light Blue
-                      color2: [200,020,200], // Magenta
-                      color3: [000,180,200], // Light Blue
-                      color4: [000,175,190], // Light Blue
-                      gray: 0.85
+                      name: "Patriotic",
+                      category: "Festive",
+                      color1: [210,210,210], // White
+                      color2: [200,000,000], // Red
+                      color3: [000,000,186], // Blue
+                      color4: [000,000,180], // Darker Blue
+                      gray: 0.7
                 ),
                 
                 Theme(id: 30,
-                      name: "Pastel",
-                      category: "Colorful",
-                      color1: [200,225,176], // Light Green
-                      color2: [176,176,225], // Light Blue
-                      color3: [225,200,176], // Light Orange
-                      color4: [219,195,171], // Light Orange
-                      gray: 0.9
+                      name: "Pumpkin",
+                      category: "Festive",
+                      color1: [249,133,044], // Orange
+                      color2: [145,057,025], // Chestnut
+                      color3: [225,060,000], // Scarlet
+                      color4: [219,055,000], // Dark Scarlet
+                      gray: 0.75
                 ),
                 
                 Theme(id: 31,
-                      name: "Vibrant",
-                      category: "Colorful",
-                      color1: [075,215,235], // Light Blue
-                      color2: [255,038,004], // Red
-                      color3: [213,004,254], // Purple
-                      color4: [208,004,248], // Darker Purple
-                      gray: 0.7
+                      name: "Holiday",
+                      category: "Festive",
+                      color1: [157,000,000], // Red
+                      color2: [210,210,210], // White
+                      color3: [005,142,005], // Dark Green
+                      color4: [004,138,004], // Darker Green
+                      gray: 0.75
                 ),
             ]
         ),

@@ -54,6 +54,11 @@ class Expression {
                     itemToAdd = addCommas(String(itemToAdd))
                 }
                 
+                // Format a repeating decimal
+                if itemToAdd.contains("R") {
+                    itemToAdd = formatRepeating(itemToAdd)
+                }
+                
                 if itemToAdd == "| |" {
                     itemToAdd = "||"
                 }
@@ -76,6 +81,11 @@ class Expression {
             
             // Add separator commas to the num
             numToAdd = addCommas(String(numToAdd))
+            
+            // Format a repeating decimal
+            if numToAdd.contains("R") {
+                numToAdd = formatRepeating(numToAdd)
+            }
             
             // Add the num to the expression
             expression += numToAdd
@@ -163,6 +173,11 @@ class Expression {
                     itemToAdd = addCommas(String(item))
                 }
                 
+                // Format a repeating decimal
+                if itemToAdd.contains("R") {
+                    itemToAdd = formatRepeating(itemToAdd)
+                }
+                
                 if itemToAdd == "| |" {
                     itemToAdd = "||"
                 }
@@ -186,7 +201,7 @@ class Expression {
         
         // Replace E with x10^ if indicated
         if expression.contains(" E") && settings.displayX10 {
-            expression = expression.replacingOccurrences(of: " E", with: "×10 ^")
+            expression = expression.replacingOccurrences(of: " E", with: " ×10 ^")
         }
         
         // Replace yeet with error
@@ -1012,6 +1027,16 @@ class Expression {
             expression = expression.replacingOccurrences(of: "`", with: "` ")
         }
         
+        // Add a space before and after repeaters
+        if expression.contains(" ̅") {
+            expression = expression.replacingOccurrences(of: " ̅", with: "  ̅")
+            expression = expression.replacingOccurrences(of: " ̅  ̅", with: " ̅ ̅")
+            expression = expression.replacingOccurrences(of: " ̅  ̅", with: " ̅ ̅")
+            expression = expression.replacingOccurrences(of: " ̅", with: " ̅ ")
+            expression = expression.replacingOccurrences(of: " ̅  ̅", with: " ̅ ̅")
+            expression = expression.replacingOccurrences(of: " ̅  ̅", with: " ̅ ̅")
+        }
+        
         // Fix dots and commas based on settings
         if settings.spaceSeparators {
             expression = expression.replacingOccurrences(of: ",", with: " ")
@@ -1085,7 +1110,6 @@ class Expression {
         
         return expressionArray
     }
-    
     
     // MARK: - Edit Number
     
@@ -1223,6 +1247,60 @@ class Expression {
 
         // Return the new string
         return newString
+    }
+    
+    
+    // Format Repeating
+    // Format repeating decimals
+    func formatRepeating(_ value: String) -> String {
+        var str = value
+        guard str.contains("R") else { return str }
+        var repeats = 0
+        while str.last == "R" {
+            str.removeLast()
+            repeats += 1
+        }
+        var repeatingSequence: Array<String> = Array(repeating: "", count: repeats)
+        for i in 0...repeats-1 {
+            repeatingSequence[repeats-i-1] = String(str.last ?? Character(""))
+            str.removeLast()
+        }
+        
+        var current = 0
+        for _ in 0..<self.settings.roundPlaces {
+            str += repeatingSequence[current]
+            current += 1
+            if current >= repeats {
+                current = 0
+            }
+        }
+        
+        var newString = str.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: ",", with: "")
+        
+        if newString.first == "-" {
+            newString.removeFirst()
+        }
+        while newString.first == "0" {
+            newString.removeFirst()
+        }
+        var chars = newString.count
+        
+        while chars > self.settings.roundPlaces {
+            newString.removeLast()
+            str.removeLast()
+            chars = newString.count
+            if chars == self.settings.roundPlaces {
+                if str.last == "." || str.last == "," {
+                    str.removeLast()
+                }
+            }
+        }
+        
+        if str.last == "." || str.last == "," {
+            str.removeLast()
+        }
+            
+        return str
     }
     
     

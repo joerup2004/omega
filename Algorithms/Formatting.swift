@@ -33,6 +33,8 @@ class Formatting: ObservableObject {
     var opacityAlt: Double = 0
     var vinculums: AnyView? = nil
     
+    var guidelines = false
+    
     
     // MARK: - Form
 
@@ -43,7 +45,7 @@ class Formatting: ObservableObject {
         let item = text
         
         // Format the text view
-        let totalWidth = format(item, inputSize: inputSize, position: position, index: index, array: array, formatting: formatting, makeView: true)
+        let totalWidth = format(item, inputSize: inputSize, position: position, index: index, array: array, formatting: formatting, padded: false)
         
         // Do not make views for items which are edited to nothing
         if (edit(item, index, array) == "" || edit(item, index, array) == " " || edit(item, index, array) == "  ") && item != "ª" {
@@ -51,7 +53,7 @@ class Formatting: ObservableObject {
         }
 
         // Update the text view
-        let textView = MakeUILabel(text: edit(item + " ", index, array), size: size, position: position)
+        let textView = MakeUILabel(text: edit(item + " ", index, array), size: size, position: position, guidelines: guidelines)
         
         // Put everything together
         let view =
@@ -69,13 +71,13 @@ class Formatting: ObservableObject {
                         .frame(height: inputSize)
                         .padding(.top, topPad)
                         .padding(.bottom, bottomPad)
-                        .padding(.leading, leftPad)
-                        .padding(.trailing, rightPad)
                     
                 }
                 .frame(width: totalWidth > 0 ? totalWidth : 0, height: inputSize)
+                .padding(.leading, leftPad)
+                .padding(.trailing, rightPad)
                 .fixedSize()
-//                .border(Color.blue, width: 0.3)
+                .border(Color.blue, width: guidelines ? 0.3 : 0)
             )
         
         return view
@@ -87,7 +89,7 @@ class Formatting: ObservableObject {
     
     // Format
     // Determine the format for each piece of text
-    func format(_ item: String, inputSize: CGFloat, position: String, index: Int, array: Array<String>, formatting: [[String]], makeView: Bool) -> CGFloat {
+    func format(_ item: String, inputSize: CGFloat, position: String, index: Int, array: Array<String>, formatting: [[String]], padded: Bool) -> CGFloat {
         
         // Create the formatting guide
         let formattingGuide = index < formatting.count ? formatting[index] : [""]
@@ -99,6 +101,8 @@ class Formatting: ObservableObject {
         var prev3: String? = nil
         var nextV: String? = nil
         var prevV: String? = nil
+        
+        let edited = edit(item, index, array)
         
         let skippers = ["v","§","`","¶","“","/","‘","Ó","Ò"]
         
@@ -157,7 +161,7 @@ class Formatting: ObservableObject {
                 size *= 0.5
                 if prev != "√" {
                     leftPad1 = -size*0.05
-                    if next != "v" {
+                    if next != "v" && !(next ?? "").contains(" ̅") {
                         rightPad1 = -size*0.05
                     }
                 }
@@ -183,7 +187,7 @@ class Formatting: ObservableObject {
                     if prev2 == "^" {
                         rightPad1 = 0
                     }
-                    else {
+                    else if !(next ?? "").contains(" ̅") {
                         rightPad1 = -size*0.05
                     }
                 }
@@ -191,11 +195,14 @@ class Formatting: ObservableObject {
 
             // Radical
             if format == "RADC" {
-                bottomPad += self.settings.light ? size*0.155 : size*0.165
+                bottomPad += size*(settings.textWeight == 0 ? 0.165 : self.settings.textWeight == 1 ? 0.155 : 0.175)
                 size *= 1.0205
                 if prev != "#2" {
                     if prev3 == "^" {
                         leftPad = -size*0.1
+                    }
+                    else if (prev ?? "").contains(" ̅") {
+                        leftPad = -size*0.4
                     }
                     else {
                         leftPad = -size*0.15
@@ -235,7 +242,9 @@ class Formatting: ObservableObject {
                     else {
                         leftPad1 = -size*0.05
                     }
-                    rightPad1 = -size*0.05
+                    if !(next ?? "").contains(" ̅") {
+                       rightPad1 = -size*0.05
+                    }
                 }
             }
             
@@ -245,7 +254,9 @@ class Formatting: ObservableObject {
                 size *= 0.6
                 if prev != "√" {
                     leftPad1 = -size*0.075
-                    rightPad1 = -size*0.075
+                    if !(next ?? "").contains(" ̅") {
+                        rightPad1 = -size*0.075
+                    }
                 }
                 if prev == "“" {
                     leftPad1 = size*0.1
@@ -267,7 +278,9 @@ class Formatting: ObservableObject {
                 size *= 0.6
                 if prev != "√" {
                     leftPad1 = -size*0.075
-                    rightPad1 = -size*0.075
+                    if !(next ?? "").contains(" ̅") {
+                        rightPad1 = -size*0.075
+                    }
                 }
                 if next == "‘" {
                     rightPad1 = size*0.1
@@ -281,7 +294,7 @@ class Formatting: ObservableObject {
             if format == "PCn" {
                 topPad += size*0.5
                 size *= 0.5
-                if next == "P" || next == "C" {
+                if nextV == "P" || nextV == "C" {
                     rightPad1 = -size*0.3
                 }
                 if prev == "Ó" {
@@ -293,10 +306,10 @@ class Formatting: ObservableObject {
             if format == "PCr" {
                 topPad += size*0.5
                 size *= 0.5
-                if prev == "P" {
+                if prevV == "P" {
                     leftPad1 = -size*0.4
                 }
-                else if prev == "C" {
+                else if prevV == "C" {
                     leftPad1 = -size*0.3
                 }
                 if next == "Ò" {
@@ -327,6 +340,15 @@ class Formatting: ObservableObject {
             }
             topPad += size*0.1
             size *= 0.85
+        }
+        else if item == "×10" {
+            leftPad1 = -size*0.27
+        }
+        
+        // Repeater
+        if item.contains(" ̅") {
+            leftPad1 = -size*0.155 - size*0.55 * CGFloat(item.count)
+            vinculum()
         }
         
         // Parentheses after function
@@ -371,6 +393,11 @@ class Formatting: ObservableObject {
                 colorAlt = Color.white
                 opacityAlt = 1
             }
+            else if edited.contains("∂") {
+                opacity = 0//.7
+                colorAlt = Color.white
+                opacityAlt = 1
+            }
             else {
                 color = Color.white
                 opacity = 1
@@ -379,10 +406,17 @@ class Formatting: ObservableObject {
             }
         }
         else {
-            color = Color.init(white: 0.7)
-            opacity = 1
-            colorAlt = Color.init(white: 0.7)
-            opacityAlt = 1
+            if edited.contains("∂") {
+                opacity = 0
+                colorAlt = Color.init(white: 0.7)
+                opacityAlt = 1
+            }
+            else {
+                color = Color.init(white: 0.7)
+                opacity = 1
+                colorAlt = Color.init(white: 0.7)
+                opacityAlt = 1
+            }
         }
         
         // Edit the item text
@@ -400,9 +434,13 @@ class Formatting: ObservableObject {
         label.textAlignment = .center
         label.numberOfLines = 1
 
-        let totalWidth = label.intrinsicContentSize.width + leftPad + rightPad
+        let displayWidth = label.intrinsicContentSize.width
+        let paddedWidth = label.intrinsicContentSize.width + leftPad + rightPad
         
-        return totalWidth
+        if padded {
+            return paddedWidth
+        }
+        return displayWidth
     }
     
     
@@ -580,6 +618,11 @@ class Formatting: ObservableObject {
         else if newText == "ª" {
             return "  "
         }
+        else if newText.contains(" ̅") {
+            var newerText = newText.replacingOccurrences(of: " ̅", with: "0")
+            newerText.removeLast()
+            return "∂" + newerText
+        }
         else if newText == "#2" {
             if index-1 >= 0 && index+1 < array.count {
                 if array[index-1] == "§" && array[index+1] == "√" {
@@ -678,7 +721,7 @@ class Formatting: ObservableObject {
     
     // MARK: Vinculum
     // Create a vinculum for radical
-    func vinculum() {
+    func vinculum(percent: Double = 1) {
         
         let vinculumView = AnyView(
             ZStack {
@@ -686,14 +729,14 @@ class Formatting: ObservableObject {
                 
                 VStack(spacing: 0) {
                     Rectangle()
-                        .frame(height: self.settings.light ? size*0.08 : size*0.11, alignment: .center)
+                        .frame(height: size*(self.settings.textWeight == 0 ? 0.06 : self.settings.textWeight == 1 ? 0.09 : 0.11), alignment: .center)
                         .frame(minWidth: 0, maxWidth: .infinity)
                         .padding(.top, topPad)
                         .padding(.bottom, bottomPad)
                     Spacer()
                 }
                 .frame(height: size+bottomPad+topPad)
-//                    .border(Color.red, width: 0.3)
+                .border(Color.red, width: guidelines ? 0.3 : 0)
             }
         )
 
@@ -708,9 +751,12 @@ class Formatting: ObservableObject {
 // Create the label which will hold the text
 struct MakeUILabel: UIViewRepresentable {
     
+    @ObservedObject var settings = Settings.settings
+    
     var text: String
     var size: CGFloat
     var position: String
+    var guidelines: Bool = false
     
     func makeUIView(context: Context) -> UILabel {
         
@@ -722,7 +768,7 @@ struct MakeUILabel: UIViewRepresentable {
     func updateUIView(_ uiView: UILabel, context: Context) {
         
         uiView.text = text
-        uiView.font = UIFont(name: Settings.settings.light ? "HelveticaNeue" : "HelveticaNeue-Bold", size: size)
+        uiView.font = UIFont(name: "HelveticaNeue\(self.settings.textWeight == 0 ? "-Light" : self.settings.textWeight == 2 ? "-Bold" : "")", size: size)
         uiView.textAlignment = .center
         uiView.numberOfLines = 1
         uiView.textColor = position == "main" ? .white: .init(white: 0.7, alpha: 1)
@@ -731,7 +777,9 @@ struct MakeUILabel: UIViewRepresentable {
         uiView.lineBreakMode = NSLineBreakMode(rawValue: 1)!
         
         // TEST MODE
-//        uiView.layer.borderColor = UIColor.green.cgColor
-//        uiView.layer.borderWidth = 0.3
+        if guidelines {
+            uiView.layer.borderColor = UIColor.green.cgColor
+            uiView.layer.borderWidth = 0.3
+        }
     }
 }

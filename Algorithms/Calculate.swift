@@ -55,7 +55,7 @@ class Calculate: ObservableObject {
             opQueue.remove(at: opQueue.index(opQueue.startIndex, offsetBy: coeffIndex))
         }
         if opQueue.count == 1 {
-            if ["π","e"].contains(opQueue.first!) {
+            if ["π","e"].contains(opQueue.first!) || opQueue.first!.contains(" ̅") {
                 opQueue[0] = String(setNumber(opQueue.first!)!)
             }
         }
@@ -958,15 +958,15 @@ class Calculate: ObservableObject {
                 if (abs(value) > 1 && (function == "sin⁻¹" || function == "cos⁻¹" )) || (abs(value) < 1 && (function == "sec⁻¹" || function == "csc⁻¹" )) || ((abs(value) < 1 || value < 0) && function == "cosh⁻¹") || ((abs(value) > 1 || value < 0) && function == "sech⁻¹") || (abs(value) > 1 && function == "tanh⁻¹") || (abs(value) < 1 && function == "coth⁻¹") {
                     // List ranges
                     var range = ""
-                    if function == "sin⁻¹" || function == "cos⁻¹" { range = "-1...1" }
-                    else if function == "sec⁻¹" || function == "csc⁻¹" { range = "-∞...-1 and 1...∞" }
-                    else if function == "cosh⁻¹" { range = "1...∞" }
-                    else if function == "sech⁻¹" { range = "0...1" }
-                    else if function == "tanh⁻¹" { range = "-1...1" }
-                    else if function == "coth⁻¹" { range = "-∞...-1 and 1...∞" }
+                    if function == "sin⁻¹" || function == "cos⁻¹" { range = "[-1,1]" }
+                    else if function == "sec⁻¹" || function == "csc⁻¹" { range = "(-∞,-1]U[1,∞)" }
+                    else if function == "cosh⁻¹" { range = "[1,∞)" }
+                    else if function == "sech⁻¹" { range = "(0,1]" }
+                    else if function == "tanh⁻¹" { range = "(-1,1)" }
+                    else if function == "coth⁻¹" { range = "(-∞...-1)U(1...∞)" }
                     // Error
-                    hub.extraMessage = "Out of range for \(function)"
-                    hub.extraMessagePopUp = "Range for \(function) is \(range)"
+                    hub.extraMessage = "Domain of \(function): \(range)"
+                    hub.extraMessagePopUp = "Domain for \(function): \(range)"
                     print("(Error) \(hub.extraMessage)")
                     hub.error = true
                     return ["Error"]
@@ -1359,9 +1359,9 @@ class Calculate: ObservableObject {
                         number = abs(number)
                     }
                     
-                    if math.rounding(number) >= pow(10,10) {
+                    if round(number) >= pow(10,10) {
                         var power = 0
-                        while math.rounding(number) >= 10 {
+                        while round(number) >= 10 {
                             number /= 10
                             power += 1
                         }
@@ -1396,9 +1396,9 @@ class Calculate: ObservableObject {
                         }
                         index += 1
                     }
-                    if math.rounding(setNumber(base) ?? 0) >= 10 {
-                        base = exp.fixZero(string: String(math.rounding((setNumber(base) ?? 0) / 10)), all: true)
-                        power = exp.fixZero(string: String(math.rounding((setNumber(power) ?? 0) + 1)), all: true)
+                    if floor(setNumber(base) ?? 0) >= 10 {
+                        base = exp.fixZero(string: math.rounding((setNumber(base) ?? 0) / 10), all: true)
+                        power = exp.fixZero(string: math.rounding((setNumber(power) ?? 0) + 1), all: true)
                     }
                     base = exp.fixZero(string: base, all: true)
                     power = exp.fixZero(string: power, all: true)
@@ -1412,11 +1412,9 @@ class Calculate: ObservableObject {
                 
                 if Double(result[resultIndex]) != nil {
                     
-                    var resultNumber = Double(result[resultIndex])!
+                    let resultNumber = Double(result[resultIndex])!
                     
-                    resultNumber = math.rounding(resultNumber)
-                    
-                    var resultString = String(resultNumber)
+                    var resultString = math.rounding(resultNumber)
                     
                     resultString = exp.fixZero(string: resultString, all: true)
                     
@@ -1453,6 +1451,28 @@ class Calculate: ObservableObject {
         
         if Double(number) != nil {
             return Double(number)!
+        }
+        else if number.contains(" ̅") || number.contains("R") {
+            var str = input
+            var repeats = 0
+            while str.last == " ̅" || str.last == "R" {
+                str.removeLast()
+                repeats += 1
+            }
+            var repeatingSequence: Array<String> = Array(repeating: "", count: repeats)
+            for i in 0...repeats-1 {
+                repeatingSequence[repeats-i-1] = String(str.last ?? Character(""))
+                str.removeLast()
+            }
+            var current = 0
+            for _ in 0...20 {
+                str += repeatingSequence[current]
+                current += 1
+                if current >= repeats {
+                    current = 0
+                }
+            }
+            return Double(str)
         }
         else if number == "π" {
             return Double.pi
@@ -1597,7 +1617,7 @@ class Calculate: ObservableObject {
             
             // Round and format item
             if Double(item) != nil && item != "01" && item != "-01" {
-                stepsQueue[stepsIndex] = exp.fixZero(string:String(math.rounding(Double(item)!)),all:true)
+                stepsQueue[stepsIndex] = exp.fixZero(string:String(Double(item)!),all:true)
             }
             
             stepsIndex += 1
@@ -1645,12 +1665,13 @@ class Calculate: ObservableObject {
     func extraResult(_ result: [String]) -> [[String]] {
         
         // Make sure result is not zero, error, infinity, or not a number
-        guard result != ["0"], result != ["∞"], result != ["Error"], result.count > 0, Double(result.first!) != nil, settings.displayAltResults else { return [[" "]] }
+        guard result != ["0"], result != ["∞"], result != ["Error"], result.count > 0, setNumber(result.first!) != nil, settings.displayAltResults else { return [[" "]]
+        }
         
         // Get the actual value of the result
         var value: Double = 0
         if result.count == 1 {
-            value = Double(result.first!)!
+            value = setNumber(result.first!)!
         }
         
         // Find the equivalent results
@@ -1674,6 +1695,10 @@ class Calculate: ObservableObject {
     func equivalentResults(value: Double) -> [[String]] {
         
         var results = [[String]]()
+        
+        if math.repeating(value) != "" {
+            results += [[math.repeating(value, vinculum: true)]]
+        }
         
         // Part A - pi, e
         A: for numA in [Double.pi, M_E] {

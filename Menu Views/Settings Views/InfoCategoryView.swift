@@ -20,79 +20,71 @@ struct InfoCategoryView: View {
             
             ScrollView {
                 
-                Spacer()
-                    .frame(height: 10)
-                
-                VStack(alignment: .leading) {
-                    Text("Button Guide: \(category.name)")
-                        .font(.custom("HelveticaNeue-Bold", size: 24))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(10)
-                    
-                    Text(category.desc)
-                        .font(.custom("HelveticaNeue", size: 18))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(10)
-                        .padding(.top, -12)
+                VStack {
                     
                     Spacer()
-                        .frame(width: geometry.size.width)
-                }
-                    
-                ForEach(category.info, id: \.id) { info in
+                        .frame(height: 10)
                         
-                    ZStack {
+                    Text(category.desc)
+                        .font(.subheadline)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(width: geometry.size.width > 800 ? 800 : geometry.size.width*0.92, alignment: .leading)
+                        .padding(10)
                         
-                        Rectangle()
-                            .foregroundColor(Color.init(white: 0.1))
-                            .cornerRadius(20)
-                    
-                        VStack(alignment: .leading, spacing: 0) {
-                        
-                            HStack {
-                                
-                                ButtonView(button: info.name, backgroundColor: color(self.information.buttonColor(buttonType: info.buttonType)), width: 70, height: 70, fontSize: 36, displayNext: false)
-                                    .padding(.trailing, 5)
-                                
-                                VStack(alignment: .leading) {
-                                    
-                                    Text(info.fullName)
-                                        .font(.custom("HelveticaNeue", size: 40))
-                                        .lineLimit(0)
-                                        .minimumScaleFactor(0.5)
-                                    
-                                    Text(info.description)
-                                        .font(.custom("HelveticaNeue", size: 16))
-                                        .foregroundColor(Color.init(white:0.6))
-                                        .lineLimit(0)
-                                        .minimumScaleFactor(0.5)
-                                }
-                                
-                                Spacer()
-                            }
-                            .padding(.bottom, 5)
+                    ForEach(category.info, id: \.id) { info in
                             
-                            HStack(spacing:0) {
-                                info.example1Q
-                                info.example1A
+                        ZStack {
+                            
+                            Rectangle()
+                                .foregroundColor(Color.init(white: 0.15))
+                                .cornerRadius(20)
+                        
+                            VStack(alignment: .leading, spacing: 0) {
+                            
+                                HStack {
+                                    
+                                    ButtonView(button: info.name, backgroundColor: color(self.information.buttonColor(buttonType: info.buttonType)), width: 70, height: 70, fontSize: 36, displayNext: false)
+                                        .padding(.trailing, 5)
+                                    
+                                    VStack(alignment: .leading) {
+                                        
+                                        Text(info.fullName)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                            .font(.title)
+                                        
+                                        Text(info.description)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                            .foregroundColor(Color.init(white:0.6))
+                                            .font(.subheadline)
+                                    }
+                                    
+                                    Spacer()
+                                }
+                                .padding(.bottom, 5)
+                                
+                                HStack(spacing:0) {
+                                    info.example1Q
+                                    info.example1A
+                                }
+                                .padding(.bottom, 5)
+                                HStack(spacing:0) {
+                                    info.example2Q
+                                    info.example2A
+                                }
+                                .padding(.bottom, 5)
                             }
-                            .padding(.bottom, 5)
-                            HStack(spacing:0) {
-                                info.example2Q
-                                info.example2A
-                            }
-                            .padding(.bottom, 5)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
                     }
                 }
+                .frame(width: geometry.size.width > 800 ? 800 : geometry.size.width*0.96 )
+                .padding(.horizontal, geometry.size.width > 800 ? (geometry.size.width-800)/2 : geometry.size.width*0.02)
             }
-            .frame(width: geometry.size.width > 800 ? 800 : geometry.size.width*0.98 )
-            .padding(.horizontal, geometry.size.width > 800 ? (geometry.size.width-800)/2 : geometry.size.width*0.01)
         }
         .navigationBarTitle(category.name)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarItems(trailing: MenuX())
     }
 }
 

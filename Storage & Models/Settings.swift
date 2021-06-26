@@ -13,7 +13,11 @@ class Settings: ObservableObject {
     
     static let settings = Settings()
     
-    @Published var calculatorType = "regular"
+    @Published var calculatorType: String = UserDefaults.standard.string(forKey: "calculatorType") ?? "regular" {
+        didSet {
+            UserDefaults.standard.set(self.calculatorType, forKey: "calculatorType")
+        }
+    }
     
     @Published var showMenu = false
     @Published var showCalculations = false
@@ -26,8 +30,6 @@ class Settings: ObservableObject {
             refresh()
         }
     }
-    
-    // Interface
     @Published var theme = getSavedTheme()
         ??
         Theme(id: 0,
@@ -43,61 +45,35 @@ class Settings: ObservableObject {
             UISwitch.appearance().onTintColor = UIColor(red: theme.color1[0]/255, green: theme.color1[1]/255, blue: theme.color1[2]/255, alpha: 1)
         }
     }
+    
+    // MARK: - Interface
+    @Published var textWeight: Int = UserDefaults.standard.integer(forKey: "textWeight") {
+        didSet {
+            UserDefaults.standard.set(self.textWeight, forKey: "textWeight")
+        }
+    }
+    @Published var buttonWeight: Int = UserDefaults.standard.integer(forKey: "buttonWeight") {
+        didSet {
+            UserDefaults.standard.set(self.buttonWeight, forKey: "buttonWeight")
+        }
+    }
     @Published var layoutExpanded: Bool = UserDefaults.standard.bool(forKey: "layoutExpanded") {
         didSet {
             UserDefaults.standard.set(self.layoutExpanded, forKey: "layoutExpanded")
         }
     }
-    
-    // Results
-    @Published var roundPlaces: Int = UserDefaults.standard.integer(forKey: "roundPlaces") {
+    @Published var shrinkLimit: Int = UserDefaults.standard.integer(forKey: "shrinkLimit") {
         didSet {
-            UserDefaults.standard.set(self.roundPlaces, forKey: "roundPlaces")
+            UserDefaults.standard.set(self.shrinkLimit, forKey: "shrinkLimit")
         }
     }
-    @Published var displayAltResults: Bool = UserDefaults.standard.bool(forKey: "displayAltResults") {
-        didSet {
-            UserDefaults.standard.set(self.displayAltResults, forKey: "displayAltResults")
-        }
-    }
-    @Published var displayAllAltResults: Bool = UserDefaults.standard.bool(forKey: "displayAllAltResults") {
-        didSet {
-            UserDefaults.standard.set(self.displayAllAltResults, forKey: "displayAllAltResults")
-        }
-    }
-    
-    // Buttons
     @Published var smartDegRad: Bool = UserDefaults.standard.bool(forKey: "smartDegRad") {
         didSet {
             UserDefaults.standard.set(self.smartDegRad, forKey: "smartDegRad")
         }
     }
-    @Published var lightBut: Bool = UserDefaults.standard.bool(forKey: "lightBut") {
-        didSet {
-            UserDefaults.standard.set(self.lightBut, forKey: "lightBut")
-        }
-    }
     
-    // Calculations
-    @Published var recentCalcCount: Int = UserDefaults.standard.integer(forKey: "recentCalcCount") {
-        didSet {
-            UserDefaults.standard.set(self.recentCalcCount, forKey: "recentCalcCount")
-        }
-    }
-    
-    // Display
-    @Published var animateText: Bool = UserDefaults.standard.bool(forKey: "animateText") {
-        didSet {
-            UserDefaults.standard.set(self.animateText, forKey: "animateText")
-        }
-    }
-    @Published var light: Bool = UserDefaults.standard.bool(forKey: "light") {
-        didSet {
-            UserDefaults.standard.set(self.light, forKey: "light")
-        }
-    }
-    
-    // Text
+    // MARK: - Text
     @Published var displayX10: Bool = UserDefaults.standard.bool(forKey: "displayX10") {
         didSet {
             UserDefaults.standard.set(self.displayX10, forKey: "displayX10")
@@ -141,6 +117,30 @@ class Settings: ObservableObject {
         }
     }
     
+    // MARK: - Results
+    @Published var roundPlaces: Int = UserDefaults.standard.integer(forKey: "roundPlaces") {
+        didSet {
+            UserDefaults.standard.set(self.roundPlaces, forKey: "roundPlaces")
+        }
+    }
+    @Published var displayAltResults: Bool = UserDefaults.standard.bool(forKey: "displayAltResults") {
+        didSet {
+            UserDefaults.standard.set(self.displayAltResults, forKey: "displayAltResults")
+        }
+    }
+    @Published var displayAllAltResults: Bool = UserDefaults.standard.bool(forKey: "displayAllAltResults") {
+        didSet {
+            UserDefaults.standard.set(self.displayAllAltResults, forKey: "displayAllAltResults")
+        }
+    }
+    
+    // MARK: - Calculations
+    @Published var recentCalcCount: Int = UserDefaults.standard.integer(forKey: "recentCalcCount") {
+        didSet {
+            UserDefaults.standard.set(self.recentCalcCount, forKey: "recentCalcCount")
+        }
+    }
+    
 }
 
 func defaultSettings() {
@@ -148,6 +148,27 @@ func defaultSettings() {
     let userDefaults = UserDefaults.standard
     let settings = Settings.settings
     
+    if userDefaults.object(forKey: "calculatorType") == nil {
+        settings.calculatorType = "regular"
+    }
+    
+    // Interface
+    if userDefaults.object(forKey: "textWeight") == nil {
+        if userDefaults.object(forKey: "light") != nil {
+            settings.textWeight = userDefaults.bool(forKey: "light") ? 0 : 2
+        }
+        else {
+            settings.textWeight = 1
+        }
+    }
+    if userDefaults.object(forKey: "buttonWeight") == nil {
+        if userDefaults.object(forKey: "lightBut") != nil {
+            settings.buttonWeight = userDefaults.bool(forKey: "lightBut") ? 0 : 2
+        }
+        else {
+            settings.buttonWeight = 1
+        }
+    }
     if userDefaults.object(forKey: "layoutExpanded") == nil {
         if UIDevice.current.userInterfaceIdiom == .pad {
             settings.layoutExpanded = true
@@ -156,30 +177,13 @@ func defaultSettings() {
             settings.layoutExpanded = false
         }
     }
-    if userDefaults.object(forKey: "roundPlaces") == nil {
-        settings.roundPlaces = 8
-    }
-    if userDefaults.object(forKey: "displayAltResults") == nil {
-        settings.displayAltResults = true
-    }
-    if userDefaults.object(forKey: "displayAllAltResults") == nil {
-        settings.displayAllAltResults = false
+    if userDefaults.object(forKey: "shrinkLimit") == nil {
+        settings.shrinkLimit = 2
     }
     if userDefaults.object(forKey: "smartDegRad") == nil {
-        settings.smartDegRad = true
+        settings.smartDegRad = false
     }
-    if userDefaults.object(forKey: "lightBut") == nil {
-        settings.lightBut = false
-    }
-    if userDefaults.object(forKey: "recentCalcCount") == nil {
-        settings.recentCalcCount = 20
-    }
-    if userDefaults.object(forKey: "animateText") == nil {
-        settings.animateText = true
-    }
-    if userDefaults.object(forKey: "light") == nil {
-        settings.light = false
-    }
+    
     if userDefaults.object(forKey: "displayX10") == nil {
         settings.displayX10 = false
     }
@@ -196,6 +200,30 @@ func defaultSettings() {
         settings.commaDecimal = false
     }
     if userDefaults.object(forKey: "degreeSymbol") == nil {
-        settings.degreeSymbol = true
+        settings.degreeSymbol = false
+    }
+    
+    if userDefaults.object(forKey: "roundPlaces") == nil {
+        settings.roundPlaces = 8
+    }
+    if userDefaults.object(forKey: "displayAltResults") == nil {
+        settings.displayAltResults = true
+    }
+    if userDefaults.object(forKey: "displayAllAltResults") == nil {
+        settings.displayAllAltResults = false
+    }
+    if userDefaults.object(forKey: "recentCalcCount") == nil {
+        settings.recentCalcCount = 20
+    }
+    
+    // Give pre-1.5 users 3 free theme sets
+    // We're removing the text animations setting, so this is being used to figure out who had the app pre-1.5
+    // If they have this value stored in UserDefaults, it means they had the app before the update
+    // NOTE: Remove this in a few months or so!!! 6/22/21
+    if userDefaults.object(forKey: "animateText") != nil {
+        UserDefaults.standard.removeObject(forKey: "animateText")
+        UserDefaults.standard.setValue(true, forKey: "com.rupertusapps.OmegaCalc.ThemeLand")
+        UserDefaults.standard.setValue(true, forKey: "com.rupertusapps.OmegaCalc.ThemeSea")
+        UserDefaults.standard.setValue(true, forKey: "com.rupertusapps.OmegaCalc.ThemeSky")
     }
 }

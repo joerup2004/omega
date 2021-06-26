@@ -358,25 +358,122 @@ class Math {
         return 0
     }
     
-    // MARK: - Other
+    // MARK: - Rounding
     
-    // Round
-    func rounding(_ value: Double) -> Double {
+    // Rounding
+    // Round each number to the specified number of places
+    func rounding(_ value: Double) -> String {
         
         var result: Double
         
+        let repeatingValue = repeating(value)
+        
+        if repeatingValue != "" {
+            return repeatingValue
+        }
+
         var multiplier: Double = pow(10, Double(self.settings.roundPlaces))
-        
+
         var whole = round(value * multiplier)
-        
+
         while abs(whole) >= pow(10,10) {
             multiplier /= 10
             whole = round(value * multiplier)
         }
-        
+
         result = whole / multiplier
         
-        return result
+        return String(result)
+    }
+    
+    // Check Repeating
+    // Check if the value is a repeating decimal
+    func repeating(_ value: Double, vinculum: Bool = false) -> String {
+        
+        let string = String(value)
+        
+        guard string.count > 12 else { return "" }
+        
+        let decimal = string.firstIndex(of: ".") ?? string.startIndex
+        let startIndex = string.distance(from: string.startIndex, to: decimal) + 1
+        var startPos = 0
+        var length = 1
+        var position = 0
+        var repeatValue = 0
+        var numRepeats = 0
+        var repeatingSequence = [Int]()
+        
+        bigboy: while startPos < 5 {
+            length = 1
+            while length <= 4 {
+                // Create the repeating sequence
+                var index = startIndex + startPos
+                position = 0
+                var repeating: Array<Int?> = Array(repeating: nil, count: length)
+                while index < string.count {
+                    let charIndex = string.index(string.startIndex, offsetBy: index)
+                    let char = string[charIndex]
+                    repeating[position] = Int(String(char))!
+                    position += 1
+                    index += 1
+                    if position >= length {
+                        position = 0
+                        break
+                    }
+                }
+                // Check if there is a repetition
+                var stillRepeats = true
+                while index < string.count {
+                    let charIndex = string.index(string.startIndex, offsetBy: index)
+                    let char = string[charIndex]
+                    if repeating[position] != Int(String(char))! {
+                        // See if the last digit was rounded
+                        if !(index == string.count-1 && abs(repeating[position]! - Int(String(char))!) <= 3) {
+                            stillRepeats = false
+                            break
+                        }
+                    }
+                    position += 1
+                    index += 1
+                    if position >= length {
+                        position = 0
+                        numRepeats += 1
+                    }
+                }
+                // Set the repeat sequence
+                if stillRepeats {
+                    for item in repeating {
+                        repeatingSequence += [item ?? 0]
+                    }
+                    // Make sure the repetition is not a 0 or 9 or did not repeat enough
+                    if [[0],[9]].contains(repeatingSequence) || numRepeats < 3 {
+                        repeatValue = 0
+                    }
+                    else {
+                        repeatValue = length
+                    }
+                    break bigboy
+                }
+                length += 1
+            }
+            startPos += 1
+        }
+        
+        // Create the repeating string
+        if repeatValue > 0 {
+            let startPosIndex = string.index(string.startIndex, offsetBy: startIndex + startPos)
+            var num = String(string.prefix(upTo: startPosIndex))
+            for item in repeatingSequence {
+                num += String(item)
+            }
+            for _ in repeatingSequence {
+                num += vinculum ? " ̅" : "R"
+            }
+//            print("REPEATING SEQUENCE >>> \(repeatingSequence) >>> pos \(startPos), length \(length), count \(numRepeats)")
+            return num
+        }
+        
+        return ""
     }
     
     

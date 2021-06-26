@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct CalculationListView: View {
     
@@ -14,9 +15,10 @@ struct CalculationListView: View {
     
     @Environment(\.presentationMode) var presentationMode
     
-    @State private var showClearAlert = false
-    
     @State var list = 0
+    
+    var inSheet: Bool = false
+    var sourcePresentationMode: Binding<PresentationMode>
     
     var body: some View {
         
@@ -74,53 +76,22 @@ struct CalculationListView: View {
                                 
                             ForEach(self.calc.calculations.reversed(), id: \.id) { calculation in
                         
-                                CalculationRowView(calculation: calculation, saved: false, width: geometry.size.width > 800 ? CGFloat(800) : geometry.size.width*0.98)
-                                    .listRowInsets(EdgeInsets())
-                                
+                                CalculationRowView(calculation: calculation, saved: false, inSheet: inSheet, sourcePresentationMode: sourcePresentationMode)
+                                    .frame(height: 90)
                             }
-                            .animation(.easeInOut)
-                            
-                            HStack {
-                                Spacer()
-                                Button(action: {
-                                    self.showClearAlert = true
-                                }) {
-                                    ZStack {
-                                        
-                                        Rectangle()
-                                            .frame(width: geometry.size.width*0.2, height: 25, alignment: .center)
-                                            .foregroundColor(Color.init(white: 0.2))
-                                            .cornerRadius(10)
-                                        
-                                        Text("Clear All")
-                                            .foregroundColor(.white)
-                                            .font(.custom("HelveticaNeue-Bold", size: 16))
-                                    }
-                                }
-                                .alert(isPresented: self.$showClearAlert) {
-                                    Alert(title: Text("Are you sure?"), message: Text("Clear all recent calculations"), primaryButton: .destructive(Text("Clear")) {
-                                            self.calc.calculations = []
-                                    }, secondaryButton: .cancel())
-                                }
-                                Spacer()
-                            }
-                            .animation(.easeInOut)
+                            .onDelete(perform: self.deleteCalcFromList)
                         }
                         else if self.list == 1 && !self.calc.savedCalculations.isEmpty {
                         
                             ForEach(self.calc.savedCalculations.reversed(), id: \.saveID) { calculation in
                                 
-                                CalculationRowView(calculation: calculation, saved: true, width: geometry.size.width > 800 ? CGFloat(800) : geometry.size.width*0.98)
-                                    .listRowInsets(EdgeInsets())
-                                
+                                CalculationRowView(calculation: calculation, saved: true, inSheet: inSheet, sourcePresentationMode: sourcePresentationMode)
+                                    .frame(height: 90)
                             }
-                            .animation(.easeInOut)
+                            .onDelete(perform: self.deleteCalcFromSavedList)
                         }
-                        
-                        Spacer()
                     }
-                    .frame(width: geometry.size.width > 800 ? 800 : geometry.size.width*0.98 )
-                    .padding(.horizontal, geometry.size.width > 800 ? (geometry.size.width-800)/2 : geometry.size.width*0.01)
+                    .listStyle(DefaultListStyle())
                 }
                 else {
                     
@@ -136,10 +107,28 @@ struct CalculationListView: View {
                     }
                     .padding(.top, 50)
                 }
+                
+                Spacer()
             }
             .id(UUID())
-            .navigationBarTitle("Calculations")
-            .onAppear { UITableView.appearance().separatorStyle = .none }
+            .navigationBarTitle("Past Calculations")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+    
+    func deleteCalcFromList(at offset: IndexSet) {
+        let deleteIndexes = offset.map { self.calc.calculations[$0].id }
+        for index in deleteIndexes {
+            let indexToDelete = self.calc.calculations.count - 1 - index
+            self.calc.deleteCalculation(calculation: self.calc.calculations[indexToDelete])
+        }
+    }
+    
+    func deleteCalcFromSavedList(at offset: IndexSet) {
+        let deleteIndexes = offset.map { self.calc.savedCalculations[$0].saveID }
+        for index in deleteIndexes {
+            let indexToDelete = self.calc.savedCalculations.count - 1 - index
+            self.calc.deleteCalculation(calculation: self.calc.savedCalculations[indexToDelete])
         }
     }
 }

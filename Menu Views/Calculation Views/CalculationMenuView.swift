@@ -21,35 +21,18 @@ struct CalculationMenuView: View {
     @ViewBuilder
     var body: some View {
             
-        ZStack {
+        NavigationView {
         
-            NavigationView {
-            
-                CalculationListView()
-            }
-            .accentColor(color(self.settings.theme.color1))
-            
-            GeometryReader { geometry in
-                
-                VStack {
-                        
-                    HStack {
-                                     
-                        Spacer()
-                        
-                        Button(action: {
-                            self.settings.showCalculations = false
-                        }) {
-                            Image(systemName: "xmark.circle")
-                                .imageScale(.large)
-                                .foregroundColor(Color.init(red: 150/255, green: 150/255, blue: 150/255))
-                                .padding(.all, geometry.size.width > geometry.size.height ? geometry.size.height*0.03 : geometry.size.height*0.025)
-                        }
+            CalculationListView(inSheet: true, sourcePresentationMode: presentationMode)
+                .navigationBarItems(trailing: Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle")
+                            .imageScale(.large)
+                            .foregroundColor(.gray)
                     }
-                    
-                    Spacer()
-                }
-            }
+                )
         }
+        .accentColor(color(self.settings.theme.color1))
     }
 }
